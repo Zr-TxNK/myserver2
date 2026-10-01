@@ -12,5 +12,8 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Run test
+      - name: Run Unit Test
         run: node dist/Test1.js
+
+      - name: Run Integration Test
+        run: node dist/integration.js
