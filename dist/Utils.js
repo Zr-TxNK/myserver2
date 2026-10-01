@@ -1,13 +1,16 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+// ==========================================
+// MODULE 2: Utils (คำนวณสูตร BMI Pure Math)
+// ==========================================
 function hello() {
     console.log("Hello world");
 }
-function calculateBMI(weight, height) {
-    // ถ้าใส่ส่วนสูงเป็นเซนติเมตร (เช่น 170) จะแปลงเป็นเมตร (1.70) ให้อัตโนมัติ
-    const h = height > 3 ? height / 100 : height;
-    if (h <= 0)
+// คำนวณ BMI ตามสูตรคณิตศาสตร์เพียวๆ: น้ำหนัก (kg) / (ส่วนสูง (m) ^ 2)
+function calculateBMI(weight, heightInMeters) {
+    if (heightInMeters <= 0 || weight <= 0)
         return 0;
-    const bmi = weight / (h * h);
+    const bmi = weight / (heightInMeters * heightInMeters);
     return Number(bmi.toFixed(2));
 }
 module.exports = {

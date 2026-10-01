@@ -9,56 +9,55 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const converter = require("./Converter");
 const utils = require("./Utils");
-const express = require("express");
 // ==========================================
-// INTEGRATION TEST
-// ทดสอบระบบจริง: ส่ง Request เข้า Express Web Server -> ดึงค่า Query -> คำนวณ BMI ผ่าน Utils -> ส่ง JSON ตอบกลับ
+// INTEGRATION TEST (Pure Math Logic)
+// ทดสอบการเชื่อมต่อการทำงานร่วมกันระหว่าง 2 โมดูล:
+// 1. Converter Module (แปลงหน่วยส่วนสูง cm -> m)
+// 2. Utils Module (คำนวณสูตร BMI)
 // ==========================================
+// Pipeline ที่เชื่อมการทำงานระหว่าง Converter กับ Utils
+function calculateBMIPipeline(weight, rawHeight) {
+    // ขั้นตอนที่ 1: ส่งค่าไปแปลงหน่วยผ่าน Converter Module
+    const heightInMeters = converter.toMeter(rawHeight);
+    // ขั้นตอนที่ 2: นำผลลัพธ์จาก Converter Module ส่งต่อให้ Utils Module คำนวณสูตร
+    const bmiResult = utils.calculateBMI(weight, heightInMeters);
+    return bmiResult;
+}
 const integration_test = () => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("=== Running Integration Test (BMI API) ===");
-    const app = express();
-    const TEST_PORT = 3999;
-    // Route API คำนวณ BMI ที่เชื่อมการทำงานระหว่าง Express กับ utils.calculateBMI
-    app.get("/api/bmi", (req, res) => {
-        const weight = parseFloat(req.query.weight);
-        const height = parseFloat(req.query.height);
-        if (isNaN(weight) || isNaN(height)) {
-            return res.status(400).json({ error: "Invalid weight or height parameters" });
-        }
-        // นำค่าไปคำนวณผ่าน Utils (จุด Integration ระหว่าง Web API กับ Module)
-        const bmi = utils.calculateBMI(weight, height);
-        res.json({
-            weight: weight,
-            height: height,
-            bmi: bmi
-        });
-    });
-    // เริ่มต้นเปิด Server จำลอง
-    const server = app.listen(TEST_PORT);
-    try {
-        // ยิง HTTP Request จริงไปที่ /api/bmi?weight=70&height=1.75
-        const response = yield fetch(`http://localhost:${TEST_PORT}/api/bmi?weight=70&height=1.75`);
-        const data = yield response.json();
-        // ตรวจสอบว่า Status 200 และได้ค่า BMI คำนวณถูกต้องตามสูตร (22.86)
-        if (response.status === 200 && data.bmi === 22.86) {
-            console.log("Integration Test passed : API /api/bmi returned Status 200 and BMI = 22.86");
-            console.log("Response data :", JSON.stringify(data));
-        }
-        else {
-            console.log("Integration Test failed : Unexpected response", data);
-            server.close();
-            process.exit(1);
-        }
+    console.log("=== Running Integration Test (Pure Math Logic) ===");
+    console.log("Testing data flow: Input -> Converter Module -> Utils Module -> Output\n");
+    // Test Case 1: Input ส่วนสูงเป็นเซนติเมตร (175 cm, 70 kg)
+    // Flow: 175 cm -> (Converter) -> 1.75 m -> (Utils) -> 70 / (1.75^2) = 22.86
+    const test1Result = calculateBMIPipeline(70, 175);
+    if (test1Result === 22.86) {
+        console.log("Integration Test 1 passed : Pipeline(70 kg, 175 cm) === 22.86");
     }
-    catch (error) {
-        console.log("Integration Test failed with error :", error);
-        server.close();
+    else {
+        console.log(`Integration Test 1 failed : Expected 22.86 but got ${test1Result}`);
         process.exit(1);
     }
-    finally {
-        // ปิด Server จำลองเมื่อทดสอบเสร็จ
-        server.close();
+    // Test Case 2: Input ส่วนสูงเป็นเซนติเมตร (160 cm, 50 kg)
+    // Flow: 160 cm -> (Converter) -> 1.60 m -> (Utils) -> 50 / (1.6^2) = 19.53
+    const test2Result = calculateBMIPipeline(50, 160);
+    if (test2Result === 19.53) {
+        console.log("Integration Test 2 passed : Pipeline(50 kg, 160 cm) === 19.53");
     }
+    else {
+        console.log(`Integration Test 2 failed : Expected 19.53 but got ${test2Result}`);
+        process.exit(1);
+    }
+    // Test Case 3: Input ส่วนสูงเป็นเมตรอยู่แล้ว (1.75 m, 70 kg)
+    // Flow: 1.75 m -> (Converter) -> 1.75 m -> (Utils) -> 70 / (1.75^2) = 22.86
+    const test3Result = calculateBMIPipeline(70, 1.75);
+    if (test3Result === 22.86) {
+        console.log("Integration Test 3 passed : Pipeline(70 kg, 1.75 m) === 22.86");
+    }
+    else {
+        console.log(`Integration Test 3 failed : Expected 22.86 but got ${test3Result}`);
+        process.exit(1);
+    }
+    console.log("\nAll Integration Tests passed successfully!");
 });
 integration_test();
