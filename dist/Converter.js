@@ -7,7 +7,7 @@ function toMeter(height) {
     if (height <= 0)
         return 0;
     // ถ้าค่ามากกว่า 3 ถือว่าเป็นเซนติเมตร (เช่น 175 cm) ให้แปลงเป็นเมตร (1.75 m)
-    return height > 3 ? Number((height / 100).toFixed(4)) : height;
+    return height > 2 ? Number((height / 100).toFixed(4)) : height;
 }
 module.exports = {
     toMeter
