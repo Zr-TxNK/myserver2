@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>User Management (Simple Test)</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 30px;
+      background-color: #ffffff;
+      color: #000000;
+      line-height: 1.5;
+    }
+    .box {
+      border: 1px solid #999;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input {
+      display: block;
+      width: 320px;
+      padding: 6px;
+      margin-top: 4px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    pre {
+      background: #f0f0f0;
+      padding: 12px;
+      border: 1px solid #ccc;
+      max-height: 350px;
+      overflow: auto;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>หน้าทดสอบระบบ User (Simple Frontend)</h1>
+
+  <!-- 1. ส่วนส่งข้อมูล (POST) -->
+  <div class="box">
+    <h2>1. ส่งข้อมูล (POST /api/users)</h2>
+    <form id="userForm">
+      <label>Username:</label>
+      <input type="text" id="username" required placeholder="ใส่ชื่อผู้ใช้">
+
+      <label>Email:</label>
+      <input type="email" id="email" required placeholder="เช่น somchai@camt.info">
+
+      <label>Password:</label>
+      <input type="password" id="password" required placeholder="ใส่รหัสผ่าน">
+
+      <label>Age:</label>
+      <input type="number" id="age" required placeholder="ใส่อายุ (1 - 120)">
+
+      <button type="submit">ส่งข้อมูล (POST)</button>
+    </form>
+    <p id="postStatus" style="margin-top: 15px; font-weight: bold;"></p>
+  </div>
+
+  <!-- 2. ส่วนดึงข้อมูล (GET) -->
+  <div class="box">
+    <h2>2. ดึงข้อมูล (GET /api/users)</h2>
+    <button type="button" id="loadUsersBtn">ดึงข้อมูล Users ทั้งหมด (GET)</button>
+    <h3 style="margin-top: 15px;">ผลลัพธ์ JSON:</h3>
+    <pre id="usersOutput">กดปุ่ม "ดึงข้อมูล Users ทั้งหมด" ด้านบนเพื่อดูผลลัพธ์</pre>
+  </div>
+
+  <script>
+    const API_URL = '/api/users';
+
+    // ฟังก์ชันส่งข้อมูล (POST)
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const statusEl = document.getElementById('postStatus');
+      statusEl.textContent = 'กำลังส่งข้อมูล...';
+      statusEl.style.color = 'black';
+
+      const payload = {
+        username: document.getElementById('username').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+        age: Number(document.getElementById('age').value)
+      };
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          statusEl.textContent = '/ บันทึกสำเร็จ (HTTP ' + res.status + ')';
+          statusEl.style.color = 'green';
+          document.getElementById('userForm').reset();
+          loadUsers(); // โหลดข้อมูลใหม่ให้อัตโนมัติ
+        } else {
+          statusEl.textContent = 'X ผิดพลาด: ' + (data.message || JSON.stringify(data));
+          statusEl.style.color = 'red';
+        }
+      } catch (err) {
+        statusEl.textContent = 'X ไม่สามารถเชื่อมต่อกับ Server: ' + err.message;
+        statusEl.style.color = 'red';
+      }
+    });
+
+    // ฟังก์ชันดึงข้อมูล (GET)
+    async function loadUsers() {
+      const outputEl = document.getElementById('usersOutput');
+      outputEl.textContent = 'กำลังโหลดข้อมูล...';
+
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        outputEl.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        outputEl.textContent = 'X โหลดข้อมูลไม่สำเร็จ: ' + err.message;
+      }
+    }
+
+    document.getElementById('loadUsersBtn').addEventListener('click', loadUsers);
+  </script>
+
+</body>
+</html>

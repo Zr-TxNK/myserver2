@@ -1,12 +1,12 @@
-name: Automated Tests CI
+name: Workflow 1
+
 on:
   push:
-    branches: [ "**" ]
-  pull_request:
-    branches: [ "**" ]
+    branches:
+      - main
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,8 +20,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build TypeScript
+      - name: Build (tsc)
         run: npm run build
 
-      - name: Run Unit Tests
+      - name: Run unit test
         run: npm test

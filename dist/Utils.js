@@ -1,19 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// ==========================================
-// MODULE 2: Utils (คำนวณสูตร BMI Pure Math)
-// ==========================================
-function hello() {
-    console.log("Hello world");
+exports.Utils = void 0;
+function helloworld() {
+    return "hello world";
 }
-// คำนวณ BMI ตามสูตรคณิตศาสตร์เพียวๆ: น้ำหนัก (kg) / (ส่วนสูง (m) ^ 2)
-function calculateBMI(weight, heightInMeters) {
-    if (heightInMeters <= 0 || weight <= 0)
-        return 0;
-    const bmi = weight / (heightInMeters * heightInMeters);
-    return Number(bmi.toFixed(2));
+function add(a, b) {
+    return a + b; // เปลี่ยนเป็น a - b เพื่อทดสอบให้ test fail
 }
-module.exports = {
-    hello,
-    calculateBMI
-};
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+// age must be an integer between 1 and 120
+function isValidAge(age) {
+    return Number.isInteger(age) && age >= 1 && age <= 120;
+}
+exports.Utils = { helloworld, add, isValidEmail, isValidAge };
